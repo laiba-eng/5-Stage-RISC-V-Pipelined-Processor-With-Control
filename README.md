@@ -17,7 +17,7 @@ A 5-stage pipelined RISC-V processor designed and implemented in Verilog, featur
 - Instruction & Data Memory
 - Pipeline Registers
 
-  # Pipeline Cycle Summary
+# Pipeline Cycle Summary
 
   
 Cycle 1: F1  |  -   |  -   |  -   |  -  
