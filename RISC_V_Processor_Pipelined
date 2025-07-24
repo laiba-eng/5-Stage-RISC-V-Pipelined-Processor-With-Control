@@ -1,0 +1,42 @@
+module RISC_V_Processor_Pipelined(clk , rst);
+input clk , rst;
+wire [31:0] PCPlus4_F , PCPlus4_D , PCPlus4_E , PCPlus4_W  , PCPlus4_M , PCin_F , PCTarget_E , PC_Out_F ,  PC_Out_D , PC_Out_E , Instruction_F , Instruction_D , Result_W , ReadData1_D , ReadData2_D , ReadData1_E , ReadData2_E , ReadData2_M , res_E , res_M , res_W , Read_Data_M ,  Read_Data_W , imm_data_D , imm_data_E , SrcB_E;
+wire [4:0] Instruction_W , Instruction_E , Instruction_M;
+wire [2:0] Operation_D , Operation_E;
+wire [1:0]  ImmSrc_D , ImmSrc_E , ResultSrc_W , ResultSrc_D , ResultSrc_E , ResultSrc_M;
+wire  RegWrite_D , RegWrite_E , RegWrite_M  , RegWrite_W  ,  PCSrc_E , ALUSrc_D , ALUSrc_E , Zero_E , Branch_E , Branch_D , Jump_E , Jump_D , MemWrite_D , MemWrite_E , MemWrite_M ;
+
+adder pcp4(PC_Out_F , 32'b100 , PCPlus4_F);
+
+assign PCSrc_E = Jump_E | (Zero_E & Branch_E);
+
+mux32bit2 PCSrcMUX(PCPlus4_F , PCTarget_E , PCSrc_E , PCin_F);
+
+Program_Counter PC(clk , rst , PCin_F , PC_Out_F);
+
+Instruction_Memory IM(PC_Out_F , Instruction_F);
+
+Pipe_D PD(clk , Instruction_F , PC_Out_F  , PCPlus4_F , Instruction_D , PC_Out_D , PCPlus4_D);
+
+mux32bit ResultSrcMUX(res_W , Read_Data_W , PCPlus4_W , ResultSrc_W , Result_W);
+
+registerFile RF(clk , RegWrite_W , Instruction_D[19:15] , Instruction_D[24:20] , Instruction_W , Result_W , ReadData1_D , ReadData2_D);
+
+imm_data_gen ID(Instruction_D , ImmSrc_D , imm_data_D);
+
+Pipe_E PE(clk , ReadData1_D , ReadData2_D , PC_Out_D , Instruction_D[11:7] , imm_data_D , PCPlus4_D , MemWrite_D , ALUSrc_D , RegWrite_D , ImmSrc_D , ResultSrc_D , Operation_D , Branch_D , Jump_D , MemWrite_E , ALUSrc_E , RegWrite_E , ImmSrc_E , ResultSrc_E , Operation_E , Branch_E , Jump_E , ReadData1_E , ReadData2_E , PC_Out_E , Instruction_E , imm_data_E , PCPlus4_E);
+
+adder pct(PC_Out_E , imm_data_E , PCTarget_E);
+
+mux32bit2 ALUSrcMUX(ReadData2_E , imm_data_E , ALUSrc_E , SrcB_E);
+
+alu lua(ReadData1_E , SrcB_E , Operation_E , res_E , Zero_E);
+
+Pipe_M PM(clk , RegWrite_E , ResultSrc_E , MemWrite_E , res_E , ReadData2_E , Instruction_E , PCPlus4_E , RegWrite_M , ResultSrc_M , MemWrite_M , res_M , ReadData2_M , Instruction_M , PCPlus4_M);
+
+Data_Memory DM(res_M, ReadData2_M, clk, MemWrite_M, Read_Data_M);
+
+Pipe_W PW(clk , RegWrite_M , ResultSrc_M , res_M , Read_Data_M , Instruction_M , PCPlus4_M , RegWrite_W , ResultSrc_W , res_W , Read_Data_W , Instruction_W , PCPlus4_W );
+
+CU controlunit(Instruction_D[6:0] , Instruction_D[14:12] , Instruction_D[31:25] , ResultSrc_D , MemWrite_D , ALUSrc_D , ImmSrc_D , RegWrite_D , Operation_D , Branch_D , Jump_D); 
+endmodule
