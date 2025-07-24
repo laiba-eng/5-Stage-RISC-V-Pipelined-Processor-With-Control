@@ -19,11 +19,13 @@ A 5-stage pipelined RISC-V processor designed and implemented in Verilog, featur
 
   # Pipeline Cycle Summary
 
-Cycle 1: F1 | - | - | - | -
-Cycle 2: F2 | D1 | - | - | -
-Cycle 3: F3 | D2 | E1 | - | -
-Cycle 4: F4 | D3 | E2 | M1 | -
-Cycle 5: F5 | D4 | E3 | M2 | W1
+  
+Cycle 1: F1  |  -   |  -   |  -   |  -  
+Cycle 2: F2  | D1   |  -   |  -   |  -  
+Cycle 3: F3  | D2   | E1   |  -   |  -  
+Cycle 4: F4  | D3   | E2   | M1   |  -  
+Cycle 5: F5  | D4   | E3   | M2   | W1
+
 
 # Simulation
 <img width="500" height="500" alt="image" src="https://github.com/user-attachments/assets/e2175f5e-b0fe-486d-88e3-466fa9b0244a" /> 
